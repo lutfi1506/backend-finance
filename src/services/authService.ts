@@ -33,7 +33,9 @@ export const createUser = async (userData: RegisterData) => {
     return user;
   } catch (error: any) {
     if (error?.code === "P2002") {
-      throw new Error("Email already exists");
+      const conflictError = new Error("Email already exists");
+      conflictError.name = "Conflict Error";
+      throw conflictError;
     }
     throw new Error("Failed to create user");
   }
@@ -47,13 +49,17 @@ export const loginUser = async (userData: LoginData) => {
   });
 
   if (!user) {
-    throw new Error("Invalid email or password");
+    const authError = new Error("Invalid email or password");
+    authError.name = "Authentication Error";
+    throw authError;
   }
 
   const isPasswordValid = await comparePassword(password, user.password);
 
   if (!isPasswordValid) {
-    throw new Error("Invalid email or password");
+    const authError = new Error("Invalid email or password");
+    authError.name = "Authentication Error";
+    throw authError;
   }
 
   // generate JWT token

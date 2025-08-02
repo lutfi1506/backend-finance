@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import authRouter from "./routes/authRouter";
+import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
 const app: Express = express();
@@ -14,6 +15,7 @@ app.get("/", (req: Request, res: Response): void => {
 });
 
 app.use("/auth", authRouter);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`API listen on port ${PORT}`);
