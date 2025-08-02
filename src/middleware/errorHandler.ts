@@ -1,6 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import { ZodError } from "zod";
+// src/middleware/errorHandler.ts
+import { Request, Response, NextFunction } from "express";
 import { responseError } from "../utils/response";
+import { AppError, ValidationError } from "../errors/appErrors"; // Impor
 
 export const errorHandler = (
   err: Error,
@@ -8,21 +9,17 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  if (err instanceof ZodError) {
-    const errors = err.issues.map((issue) => ({
-      path: issue.path.join("."),
-      message: issue.message,
-    }));
-    return responseError(res, 400, "Invalid input", errors);
-  }
-  if (err.name === "Conflict Error") {
-    return responseError(res, 409, err.message, null);
+  // Jika error adalah instance dari ValidationError, ia punya properti 'errors'
+  if (err instanceof ValidationError) {
+    return responseError(res, err.statusCode, err.message, err.errors);
   }
 
-  if (err.name === "Authentication Error") {
-    return responseError(res, 401, err.message, null);
+  // Untuk semua error kustom lainnya yang merupakan turunan AppError
+  if (err instanceof AppError) {
+    return responseError(res, err.statusCode, err.message, null);
   }
 
-  console.error(err);
+  // Untuk error tak terduga (bukan instance dari AppError)
+  console.error("UNHANDLED ERROR:", err); // Penting untuk logging
   return responseError(res, 500, "Internal Server Error", null);
 };

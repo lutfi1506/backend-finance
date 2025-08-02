@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma";
+import { ConflictError, UnauthorizedError } from "../errors/appErrors";
 import { comparePassword, hashPassword } from "../utils/hash";
 import jwt from "jsonwebtoken";
 
@@ -33,9 +34,7 @@ export const createUser = async (userData: RegisterData) => {
     return user;
   } catch (error: any) {
     if (error?.code === "P2002") {
-      const conflictError = new Error("Email already exists");
-      conflictError.name = "Conflict Error";
-      throw conflictError;
+      throw new ConflictError("Email already exists");
     }
     throw new Error("Failed to create user");
   }
@@ -49,17 +48,13 @@ export const loginUser = async (userData: LoginData) => {
   });
 
   if (!user) {
-    const authError = new Error("Invalid email or password");
-    authError.name = "Authentication Error";
-    throw authError;
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   const isPasswordValid = await comparePassword(password, user.password);
 
   if (!isPasswordValid) {
-    const authError = new Error("Invalid email or password");
-    authError.name = "Authentication Error";
-    throw authError;
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   // generate JWT token

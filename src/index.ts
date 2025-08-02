@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import authRouter from "./routes/authRouter";
+import categoryRouter from "./routes/categoryRouter";
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -15,6 +16,7 @@ app.get("/", (req: Request, res: Response): void => {
 });
 
 app.use("/auth", authRouter);
+app.use("/categories", categoryRouter);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
