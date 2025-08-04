@@ -3,6 +3,7 @@ import { AuthRequest } from "../middleware/authMiddleware";
 import {
   createCategory,
   getCategoriesByUser,
+  updateCategory,
 } from "../services/categoryService";
 import { responseSuccess } from "../utils/response";
 
@@ -23,4 +24,17 @@ export const getAllCategory = async (
   const userId = req.user?.id ?? "";
   const categories = await getCategoriesByUser(userId);
   responseSuccess(res, 200, "Categories fetched successfully", categories);
+};
+
+export const updatedCategory = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  const { name, type } = req.body;
+  const userId = req.user?.id ?? "";
+
+  // Assuming there's a service function to update the category
+  const updatedCategory = await updateCategory(userId, id, { name, type });
+  responseSuccess(res, 200, "Category updated successfully", updatedCategory);
 };
